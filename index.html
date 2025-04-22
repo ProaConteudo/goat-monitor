@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GOAT Monitor - Sistema de Monitoramento Esportivo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4e2a84;
+            --secondary: #58b947;
+            --dark: #212529;
+            --light: #f8f9fa;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        .navbar {
+            background-color: var(--primary);
+        }
+        
+        .sidebar {
+            background-color: var(--dark);
+            min-height: calc(100vh - 56px);
+            color: white;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 5px;
+            border-radius: 5px;
+        }
+        
+        .sidebar .nav-link:hover {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar .nav-link.active {
+            color: white;
+            background-color: var(--primary);
+        }
+        
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border: none;
+        }
+        
+        .card-header {
+            font-weight: 600;
+            background-color: white;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+            border-radius: 10px 10px 0 0 !important;
+        }
+        
+        .trend-item {
+            border-left: 4px solid var(--primary);
+            padding-left: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .trend-item.positive {
+            border-left-color: #28a745;
+        }
+        
+        .trend-item.negative {
+            border-left-color: #dc3545;
+        }
+        
+        .trend-item.neutral {
+            border-left-color: #6c757d;
+        }
+        
+        .trend-growth {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .trend-growth.up {
+            color: #28a745;
+        }
+        
+        .trend-growth.down {
+            color: #dc3545;
+        }
+        
+        .badge-platform {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            margin-right: 5px;
+        }
+        
+        .badge-instagram {
+            background-color: #E1306C;
+        }
+        
+        .badge-twitter {
+            background-color: #1DA1F2;
+        }
+        
+        .badge-facebook {
+            background-color: #4267B2;
+        }
+        
+        .badge-bluesky {
+            background-color: #0085FF;
+        }
+        
+        .post-suggestion {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .post-text {
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+        }
+        
+        .post-meta {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        
+        .chart-container {
+            height: 300px;
+            margin-bottom: 20px;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            font-size: 0.7rem;
+        }
+        
+        .alert-new {
+            border-left: 4px solid #dc3545;
+        }
+        
+        .cursor-pointer {
+            cursor: pointer;
+        }
+        
+        .dashboard-stat {
+            text-align: center;
+            padding: 15px;
+        }
+        
+        .dashboard-stat .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .dashboard-stat .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        .dashboard-stat.primary .stat-value {
+            color: var(--primary);
+        }
+        
+        .dashboard-stat.success .stat-value {
+            color: #28a745;
+        }
+        
+        .dashboard-stat.danger .stat-value {
+            color: #dc3545;
+        }
+        
+        .dashboard-stat.info .stat-value {
+            color: #17a2b8;
+        }
+        
+        .ai-assistant-card {
+            border-left: 4px solid var(--primary);
+        }
+        
+        .ai-message {
+            background-color: #f0f2ff;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .ai-suggestion-btn {
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-chart-line me-2"></i>GOAT Monitor
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Tendências</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Sugestões</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Relatórios</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <div class="position-relative me-3 mt-2">
+                        <i class="fas fa-bell text-white fs-5 cursor-pointer"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge">
+                            3
+                        </span>
+                    </div>
+                    <div class="dropdown">
+                        <a class="btn btn-outline-light dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown">
+                            Canal GOAT
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">Perfil</a></li>
+                            <li><a class="dropdown-item" href="#">Configurações</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#">Sair</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 d-none d-md-block sidebar py-3">
+                <div class="position-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#">
+                                <i class="fas fa-home me-2"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-fire me-2"></i>
+                                Tendências
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-lightbulb me-2"></i>
+                                Sugestões de Posts
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-chart-bar me-2"></i>
+                                Análise de Sentimento
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-users me-2"></i>
+                                Clubes
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-calendar me-2"></i>
+                                Calendário
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-file-alt me-2"></i>
+                                Relatórios
+                            </a>
+                        </li>
+                        <li class="nav-item mt-4">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-cog me-2"></i>
+                                Configurações
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-question-circle me-2"></i>
+                                Ajuda
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <main class="col-md-10 ms-sm-auto px-md-4 py-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Dashboard</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary">Compartilhar</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary">Exportar</button>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
+                            <i class="fas fa-calendar me-1"></i>
+                            Hoje
+                        </button>
+                    </div>
+                </div>
+
+                <!-- AI Assistant Card -->
+                <div class="card mb-4 ai-assistant-card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-robot me-2"></i>Assistente IA</h5>
+                        <div class="ai-message">
+                            <p><strong>Bom dia, Canal GOAT!</strong> Aqui estão as principais tendências esportivas de hoje:</p>
+                            <p>Detectei um aumento de 291% nas menções sobre <strong>"Neymar no Santos"</strong> nas últimas 24 horas, com sentimento predominantemente positivo. Também há um crescimento significativo nas discussões sobre o <strong>"Técnico da Seleção"</strong> (194%) e <strong>"Arbitragem VAR"</strong> (136%).</p>
+                            <p>Recomendo criar conteúdo sobre esses temas hoje. Posso ajudar com sugestões específicas?</p>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-primary ai-suggestion-btn">Gerar sugestões para Neymar no Santos</button>
+                            <button class="btn btn-sm btn-outline-primary ai-suggestion-btn">Gerar sugestões para Técnico da Seleção</button>
+                            <button class="btn btn-sm btn-outline-primary ai-suggestion-btn">Gerar sugestões para Arbitragem VAR</button>
+                            <button class="btn btn-sm btn-outline-secondary ai-suggestion-btn">Outro tema...</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Row -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body dashboard-stat primary">
+                                <div class="stat-value">5</div>
+                                <div class="stat-label">Tendências Emergentes</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body dashboard-stat success">
+                                <div class="stat-value">291%</div>
+                                <div class="stat-label">Maior Crescimento</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body dashboard-stat info">
+                                <div class="stat-value">18.5k</div>
+                                <div class="stat-label">Menções Monitoradas</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body dashboard-stat danger">
+                                <div class="stat-value">3</div>
+                                <div class="stat-label">Alertas Importantes</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Trending Topics -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span>Tendências Emergentes</span>
+                                <button class="btn btn-sm btn-outline-primary">Ver Todas</button>
+                            </div>
+                            <div class="card-body">
+                                <div class="trend-item positive">
+                                    <div class="d-flex justify-content-between">
+                                        <h6 class="mb-0">Neymar no Santos</h6>
+                                        <span class="trend-growth up">
+                                            <i class="fas fa-arrow-up me-1"></i>291%
+                                        </span>
+                                    </div>
+                                    <p class="mb-1 small">Sentimento: Positivo (54%)</p>
+                                    <div>
+                                        <span class="badge bg-primary badge-platform badge-instagram">Instagram</span>
+                                        <span class="badge bg-primary badge-platform badge-twitter">Twitter/X</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="trend-item neutral">
+                                    <div class="d-flex justify-content-between">
+                                        <
+(Content truncated due to size limit. Use line ranges to read in chunks)
